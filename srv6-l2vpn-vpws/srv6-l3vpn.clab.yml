@@ -1,0 +1,50 @@
+#CE1---PE1---P---PE2---CE2
+
+
+name: srv6-l3vpn
+
+mgmt:
+  network: mgt_net
+  ipv4-subnet: 172.20.6.0/24
+
+topology:
+  nodes:
+    # CE маршрутизаторы
+    ce1:
+      kind: cisco_xrd
+      image: ios-xr/xrd-control-plane:24.4.1
+      mgmt-ipv4: 172.20.6.11
+    
+    ce2:
+      kind: cisco_xrd
+      image: ios-xr/xrd-control-plane:24.4.1
+      mgmt-ipv4: 172.20.6.12
+    
+    # P маршрутизатор
+    p:
+      kind: cisco_xrd
+      image: ios-xr/xrd-control-plane:24.4.1
+      mgmt-ipv4: 172.20.6.21
+      startup-config: config/p.cfg
+    
+    # PE маршрутизаторы
+    pe1:
+      kind: cisco_xrd
+      image: ios-xr/xrd-control-plane:24.4.1
+      mgmt-ipv4: 172.20.6.31
+      startup-config: config/pe1.cfg
+    
+    pe2:
+      kind: cisco_xrd
+      image: ios-xr/xrd-control-plane:24.4.1
+      mgmt-ipv4: 172.20.6.32
+      startup-config: config/pe2.cfg
+
+  links:
+    # Underlay связи
+    - endpoints: ["p:Gi0-0-0-1", "pe1:Gi0-0-0-1"]
+    - endpoints: ["p:Gi0-0-0-2", "pe2:Gi0-0-0-1"]
+    
+    # PE-CE связи
+    - endpoints: ["pe1:Gi0-0-0-0", "ce1:Gi0-0-0-0"]
+    - endpoints: ["pe2:Gi0-0-0-0", "ce2:Gi0-0-0-0"]
